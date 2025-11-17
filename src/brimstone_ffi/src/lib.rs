@@ -1,3 +1,6 @@
+// Allow raw pointer dereferencing in FFI functions - this is inherent to FFI
+#![allow(clippy::not_unsafe_ptr_arg_deref)]
+
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::panic::{self, AssertUnwindSafe};
@@ -36,9 +39,7 @@ pub extern "C" fn bs_init() {
 pub extern "C" fn bs_context_new() -> *mut BsContext {
     let result = panic::catch_unwind(|| {
         let cx = ContextBuilder::new().build();
-        Box::into_raw(Box::new(BsContext {
-            context: Some(cx),
-        }))
+        Box::into_raw(Box::new(BsContext { context: Some(cx) }))
     });
 
     match result {
@@ -48,6 +49,10 @@ pub extern "C" fn bs_context_new() -> *mut BsContext {
 }
 
 /// Destroy a Brimstone context
+///
+/// # Safety
+/// This function dereferences a raw pointer and must only be called with a valid
+/// pointer obtained from `bs_context_new`. The pointer must not be used after this call.
 #[no_mangle]
 pub extern "C" fn bs_context_free(ctx: *mut BsContext) {
     if ctx.is_null() {
@@ -72,6 +77,12 @@ pub extern "C" fn bs_context_free(ctx: *mut BsContext) {
 ///
 /// # Returns
 /// BsResultCode indicating success or failure
+///
+/// # Safety
+/// This function dereferences raw pointers. Callers must ensure:
+/// - `ctx` is a valid pointer from `bs_context_new`
+/// - `code` and `filename` (if not null) are valid null-terminated UTF-8 strings
+/// - `error_out` (if not null) points to valid memory
 #[no_mangle]
 pub extern "C" fn bs_eval(
     ctx: *mut BsContext,
@@ -111,7 +122,7 @@ pub extern "C" fn bs_eval(
             Ok(s) => Rc::new(s),
             Err(e) => {
                 if !error_out.is_null() {
-                    if let Ok(error_msg) = CString::new(format!("Failed to create source: {:?}", e)) {
+                    if let Ok(error_msg) = CString::new(format!("Failed to create source: {e:?}")) {
                         *error_out = error_msg.into_raw();
                     }
                 }
@@ -122,10 +133,10 @@ pub extern "C" fn bs_eval(
         // Execute the script
         match cx.evaluate_script(source) {
             Ok(_) => BsResultCode::Success,
-            Err(err) => {
+            Err(_err) => {
                 if !error_out.is_null() {
                     // Format error by converting to string representation
-                    let error_message = format!("JavaScript error occurred");
+                    let error_message = "JavaScript error occurred".to_string();
                     if let Ok(error_msg) = CString::new(error_message) {
                         *error_out = error_msg.into_raw();
                     }
@@ -152,6 +163,12 @@ pub extern "C" fn bs_eval(
 ///
 /// # Returns
 /// BsResultCode indicating success or failure
+///
+/// # Safety
+/// This function dereferences raw pointers. Callers must ensure:
+/// - `ctx` is a valid pointer from `bs_context_new`
+/// - `code` and `filename` (if not null) are valid null-terminated UTF-8 strings
+/// - `result_out` and `error_out` (if not null) point to valid memory
 #[no_mangle]
 pub extern "C" fn bs_eval_with_result(
     ctx: *mut BsContext,
@@ -187,10 +204,8 @@ pub extern "C" fn bs_eval_with_result(
         };
 
         // Wrap code to capture the result
-        let wrapped_code = format!(
-            "(() => {{ const __result = {}; return typeof __result === 'undefined' ? 'undefined' : JSON.stringify(__result); }})()",
-            code_str
-        );
+        let wrapped_code =
+            format!("(() => {{ const __result = {code_str}; return typeof __result === 'undefined' ? 'undefined' : JSON.stringify(__result); }})()");
 
         // Create source and evaluate
         let wtf8_code = Wtf8String::from_str(&wrapped_code);
@@ -198,7 +213,7 @@ pub extern "C" fn bs_eval_with_result(
             Ok(s) => Rc::new(s),
             Err(e) => {
                 if !error_out.is_null() {
-                    if let Ok(error_msg) = CString::new(format!("Failed to create source: {:?}", e)) {
+                    if let Ok(error_msg) = CString::new(format!("Failed to create source: {e:?}")) {
                         *error_out = error_msg.into_raw();
                     }
                 }
@@ -218,10 +233,10 @@ pub extern "C" fn bs_eval_with_result(
                 }
                 BsResultCode::Success
             }
-            Err(err) => {
+            Err(_err) => {
                 if !error_out.is_null() {
                     // Format error by converting to string representation
-                    let error_message = format!("JavaScript error occurred");
+                    let error_message = "JavaScript error occurred".to_string();
                     if let Ok(error_msg) = CString::new(error_message) {
                         *error_out = error_msg.into_raw();
                     }
@@ -238,6 +253,11 @@ pub extern "C" fn bs_eval_with_result(
 }
 
 /// Free a string allocated by Brimstone
+///
+/// # Safety
+/// This function takes ownership of the pointer and frees it. The pointer must have
+/// been allocated by Brimstone (from error_out or result_out parameters) and must not
+/// be used after this call.
 #[no_mangle]
 pub extern "C" fn bs_string_free(s: *mut c_char) {
     if s.is_null() {
@@ -269,17 +289,12 @@ mod tests {
         let code = CString::new("console.log('Hello from FFI');").unwrap();
         let mut error: *mut c_char = ptr::null_mut();
 
-        let result = bs_eval(
-            ctx,
-            code.as_ptr(),
-            ptr::null(),
-            &mut error as *mut *mut c_char,
-        );
+        let result = bs_eval(ctx, code.as_ptr(), ptr::null(), &mut error as *mut *mut c_char);
 
         if !error.is_null() {
             unsafe {
                 let error_str = CStr::from_ptr(error).to_string_lossy();
-                println!("Error: {}", error_str);
+                println!("Error: {error_str}");
                 bs_string_free(error);
             }
         }

@@ -5,6 +5,7 @@ members = [
   "src/brimstone_macros",
   "src/js",
   "src/brimstone_serialized_heap",
+  "src/brimstone_ffi",
   "tests",
   "tests/harness",
 ]
@@ -22,6 +23,7 @@ brimstone_core = { path = "src/js" }
 brimstone_icu_collections = { path = "src/brimstone_icu_collections" }
 brimstone_macros = { path = "src/brimstone_macros" }
 brimstone_serialized_heap = { path = "src/brimstone_serialized_heap" }
+brimstone_ffi = { path = "src/brimstone_ffi" }
 
 # External Crates
 allocator-api2 = "0.2.21"

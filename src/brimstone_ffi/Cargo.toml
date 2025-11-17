@@ -1,0 +1,15 @@
+[package]
+name = "brimstone_ffi"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+brimstone_core.workspace = true
+brimstone_serialized_heap.workspace = true
+
+[lints]
+workspace = true

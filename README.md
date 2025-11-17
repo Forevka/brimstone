@@ -31,6 +31,45 @@ cargo build
 Hello world!
 ```
 
+## C# Bindings
+
+Brimstone includes production-ready C# bindings that allow you to run JavaScript from .NET applications. See [CSHARP_BINDINGS.md](./CSHARP_BINDINGS.md) for detailed documentation.
+
+Quick start:
+
+```bash
+# Build the FFI library and C# bindings
+./build-csharp-bindings.sh
+
+# Or build manually
+cargo build -p brimstone_ffi --release
+cd csharp && dotnet build -c Release
+
+# Run examples
+cd csharp && dotnet run --project Brimstone.Net.Examples
+```
+
+Example usage in C#:
+
+```csharp
+using Brimstone.Net;
+
+using var engine = new BrimstoneEngine();
+engine.Eval("console.log('Hello from C#!');");
+
+// Load and run JavaScript libraries
+engine.EvalFile("myLibrary.js");
+engine.Eval("MyLibrary.doSomething();");
+```
+
+Features:
+- Full JavaScript ES2024+ support
+- Cross-platform (Linux, macOS, Windows)
+- Safe memory management with IDisposable
+- Comprehensive error handling
+- Load external JavaScript files
+- Production-ready
+
 ## Testing
 
 Brimstone relies heavily on a set of first and third party integration test suites, most notably the official [test262](https://github.com/tc39/test262) test suite. A custom [integration test runner](./tests/README.md) is included. This can be run with:

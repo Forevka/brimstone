@@ -117,15 +117,82 @@ Comprehensive examples demonstrating:
 8. Error handling (both JS and C# side)
 9. Loading external JavaScript files
 
-## Building
+## Installation
 
-### Prerequisites
+### Option 1: Download Pre-built Bindings (Recommended)
+
+Pre-built bindings are automatically built for every commit to master. This is the fastest way to get started!
+
+#### Steps:
+
+1. Go to the [GitHub Actions](../../actions/workflows/build-csharp-bindings.yml) page
+2. Click on the latest successful workflow run (green checkmark)
+3. Scroll down to the "Artifacts" section
+4. Download the artifact for your platform:
+   - **Linux x64**: `brimstone-csharp-linux-x64.tar.gz` (~10-15 MB)
+   - **Windows x64**: `brimstone-csharp-windows-x64.zip` (~10-15 MB)
+
+#### Linux Quick Start:
+
+```bash
+# Extract the archive
+tar -xzf brimstone-csharp-linux-x64.tar.gz
+cd brimstone-csharp-linux-x64
+
+# Run the examples
+./run-examples.sh
+
+# Or run directly
+cd Examples
+dotnet Brimstone.Net.Examples.dll
+```
+
+#### Windows Quick Start:
+
+```cmd
+REM Extract the zip file using Windows Explorer or:
+tar -xf brimstone-csharp-windows-x64.zip
+cd brimstone-csharp-windows-x64
+
+REM Run the examples
+run-examples.bat
+```
+
+Or using PowerShell:
+
+```powershell
+# Extract
+Expand-Archive brimstone-csharp-windows-x64.zip
+cd brimstone-csharp-windows-x64
+
+# Run examples
+.\run-examples.bat
+
+# Or directly
+cd Examples
+dotnet Brimstone.Net.Examples.dll
+```
+
+Each artifact includes:
+- ✅ Native library (libbrimstone_ffi.so / brimstone_ffi.dll)
+- ✅ C# bindings (Brimstone.Net.dll)
+- ✅ Compiled examples ready to run
+- ✅ Example source code
+- ✅ Complete documentation
+- ✅ Getting started guide
+- ✅ Run scripts for easy testing
+
+### Option 2: Build from Source
+
+If you prefer to build from source or need to modify the bindings:
+
+#### Prerequisites
 
 1. **Rust Toolchain** - Install from https://rustup.rs/
 2. **.NET 8.0 SDK** - Install from https://dotnet.microsoft.com/download
 3. **Linux/macOS/Windows** - Cross-platform support
 
-### Build Steps
+#### Build Steps
 
 #### Option 1: Using the build script (Linux/macOS)
 
@@ -348,6 +415,58 @@ Possible improvements for production use:
 6. **Debugger Support** - Debugging capabilities
 7. **Performance Monitoring** - Metrics and profiling
 
+## Continuous Integration
+
+The C# bindings are automatically built and tested on every push to master using GitHub Actions.
+
+### CI Workflow
+
+The workflow (`.github/workflows/build-csharp-bindings.yml`) performs the following:
+
+1. **Builds for multiple platforms**:
+   - Linux x64 (Ubuntu latest)
+   - Windows x64 (Windows latest)
+
+2. **Build process for each platform**:
+   - Setup Rust stable toolchain
+   - Setup .NET 8.0 SDK
+   - Build Brimstone FFI library in release mode
+   - Build C# bindings in release mode
+   - Run all examples to verify functionality
+   - Package ready-to-use distribution
+   - Upload artifacts to GitHub
+
+3. **Artifacts retention**: 90 days
+
+4. **Caching**: Cargo registry, git dependencies, and build artifacts are cached to speed up builds
+
+### Downloading CI Artifacts
+
+1. Navigate to [GitHub Actions](../../actions/workflows/build-csharp-bindings.yml)
+2. Select the latest successful workflow run (green checkmark)
+3. Scroll to the "Artifacts" section at the bottom
+4. Download your platform's artifact
+5. Extract and run!
+
+### What's in the Artifacts?
+
+Each artifact is a complete, ready-to-use package:
+
+**Contents:**
+- Native Brimstone library (.so / .dll)
+- C# bindings library (Brimstone.Net.dll)
+- Compiled examples (with source code)
+- All dependencies
+- Documentation (README, CSHARP_BINDINGS, GETTING_STARTED)
+- Platform-specific run script (run-examples.sh / run-examples.bat)
+- Sample test.js file
+
+**No installation required** - just extract and run!
+
+### Build Status
+
+Check the [Actions](../../actions) tab to see the current build status and download the latest artifacts.
+
 ## License
 
 This code follows the Brimstone project license (MIT).
@@ -356,9 +475,18 @@ This code follows the Brimstone project license (MIT).
 
 Contributions welcome! Please see the main Brimstone repository for contribution guidelines.
 
+### Testing Your Changes
+
+When you submit a PR with changes to the C# bindings:
+1. The CI workflow will automatically build your changes
+2. Artifacts will be available for testing
+3. All examples must run successfully for the build to pass
+
 ## Support
 
 For issues or questions:
 1. Check the examples in `Brimstone.Net.Examples`
-2. Read the main Brimstone documentation
-3. File an issue on the Brimstone GitHub repository
+2. Download and test the latest CI artifacts
+3. Read the main Brimstone documentation
+4. Check the [CI workflow documentation](.github/workflows/README.md)
+5. File an issue on the Brimstone GitHub repository

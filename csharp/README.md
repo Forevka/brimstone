@@ -8,15 +8,52 @@ This directory contains the C# bindings for the Brimstone JavaScript engine, all
 - **Brimstone.Net.Examples/** - Example project demonstrating various use cases
 - **Brimstone.Net.sln** - Visual Studio solution file
 
-## Prerequisites
+## Getting Started
+
+### Option 1: Download Pre-built Bindings (Recommended)
+
+**The easiest way to get started!** Pre-built bindings are automatically built for every commit to master.
+
+1. Go to [GitHub Actions](../../actions/workflows/build-csharp-bindings.yml)
+2. Click the latest successful build
+3. Download the artifact for your platform:
+   - Linux x64: `brimstone-csharp-linux-x64.tar.gz`
+   - Windows x64: `brimstone-csharp-windows-x64.zip`
+4. Extract and run!
+
+**Linux:**
+```bash
+tar -xzf brimstone-csharp-linux-x64.tar.gz
+cd brimstone-csharp-linux-x64
+./run-examples.sh
+```
+
+**Windows:**
+```cmd
+# Extract the zip, then:
+run-examples.bat
+```
+
+Each artifact includes everything you need:
+- ✅ Native library
+- ✅ C# bindings
+- ✅ Ready-to-run examples
+- ✅ Complete documentation
+- ✅ Sample code
+
+### Option 2: Build from Source
+
+If you want to build from source or modify the bindings:
+
+#### Prerequisites
 
 - .NET 8.0 SDK or later
 - Rust toolchain (for building the native library)
 - Linux, macOS, or Windows
 
-## Building
+#### Building
 
-### 1. Build the Brimstone FFI library
+#### 1. Build the Brimstone FFI library
 
 From the repository root:
 

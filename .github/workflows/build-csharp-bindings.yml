@@ -1,0 +1,412 @@
+name: Build Brimstone C# Bindings
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  build-linux:
+    name: Build Linux x64
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache Cargo registry
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache Cargo index
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache Cargo build
+      uses: actions/cache@v3
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Build Brimstone FFI library
+      run: |
+        cargo build -p brimstone_ffi --release
+        ls -lh target/release/
+
+    - name: Build C# bindings
+      run: |
+        cd csharp
+        dotnet build -c Release
+
+    - name: Run C# examples
+      run: |
+        cd csharp
+        dotnet run --project Brimstone.Net.Examples -c Release
+
+    - name: Prepare distribution package
+      run: |
+        mkdir -p dist/brimstone-csharp-linux-x64
+
+        # Copy native library
+        cp target/release/libbrimstone_ffi.so dist/brimstone-csharp-linux-x64/
+
+        # Copy C# bindings
+        cp -r csharp/Brimstone.Net/bin/Release/net8.0/* dist/brimstone-csharp-linux-x64/
+
+        # Copy examples
+        mkdir -p dist/brimstone-csharp-linux-x64/Examples
+        cp -r csharp/Brimstone.Net.Examples/bin/Release/net8.0/* dist/brimstone-csharp-linux-x64/Examples/
+        cp csharp/Brimstone.Net.Examples/Program.cs dist/brimstone-csharp-linux-x64/Examples/
+
+        # Copy documentation
+        cp csharp/README.md dist/brimstone-csharp-linux-x64/
+        cp CSHARP_BINDINGS.md dist/brimstone-csharp-linux-x64/
+
+        # Copy test.js
+        cp test.js dist/brimstone-csharp-linux-x64/Examples/ || true
+
+        # Create a run script
+        cat > dist/brimstone-csharp-linux-x64/run-examples.sh << 'EOF'
+        #!/bin/bash
+        cd Examples
+        dotnet Brimstone.Net.Examples.dll
+        EOF
+        chmod +x dist/brimstone-csharp-linux-x64/run-examples.sh
+
+        # Create a getting started file
+        cat > dist/brimstone-csharp-linux-x64/GETTING_STARTED.md << 'EOF'
+        # Brimstone C# Bindings - Linux x64
+
+        ## Quick Start
+
+        ### Run the examples:
+        ```bash
+        ./run-examples.sh
+        # Or directly:
+        cd Examples && dotnet Brimstone.Net.Examples.dll
+        ```
+
+        ### Use in your project:
+
+        1. Copy `libbrimstone_ffi.so` and `Brimstone.Net.dll` to your project
+        2. Reference Brimstone.Net.dll in your project
+        3. Ensure libbrimstone_ffi.so is in the same directory or in your library path
+
+        ### Example code:
+        ```csharp
+        using Brimstone.Net;
+
+        using var engine = new BrimstoneEngine();
+        engine.Eval("console.log('Hello from Brimstone!');");
+        ```
+
+        See README.md and CSHARP_BINDINGS.md for detailed documentation.
+        EOF
+
+        # Create zip archive
+        cd dist
+        tar -czf brimstone-csharp-linux-x64.tar.gz brimstone-csharp-linux-x64/
+        ls -lh
+
+    - name: Upload Linux artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: brimstone-csharp-linux-x64
+        path: dist/brimstone-csharp-linux-x64.tar.gz
+        retention-days: 90
+
+  build-windows:
+    name: Build Windows x64
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache Cargo registry
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache Cargo index
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache Cargo build
+      uses: actions/cache@v3
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Build Brimstone FFI library
+      run: |
+        cargo build -p brimstone_ffi --release
+        dir target\release\
+
+    - name: Build C# bindings
+      run: |
+        cd csharp
+        dotnet build -c Release
+
+    - name: Run C# examples
+      run: |
+        cd csharp
+        dotnet run --project Brimstone.Net.Examples -c Release
+
+    - name: Prepare distribution package
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Force -Path dist/brimstone-csharp-windows-x64
+
+        # Copy native library
+        Copy-Item target/release/brimstone_ffi.dll dist/brimstone-csharp-windows-x64/
+
+        # Copy C# bindings
+        Copy-Item -Recurse csharp/Brimstone.Net/bin/Release/net8.0/* dist/brimstone-csharp-windows-x64/
+
+        # Copy examples
+        New-Item -ItemType Directory -Force -Path dist/brimstone-csharp-windows-x64/Examples
+        Copy-Item -Recurse csharp/Brimstone.Net.Examples/bin/Release/net8.0/* dist/brimstone-csharp-windows-x64/Examples/
+        Copy-Item csharp/Brimstone.Net.Examples/Program.cs dist/brimstone-csharp-windows-x64/Examples/
+
+        # Copy documentation
+        Copy-Item csharp/README.md dist/brimstone-csharp-windows-x64/
+        Copy-Item CSHARP_BINDINGS.md dist/brimstone-csharp-windows-x64/
+
+        # Copy test.js if exists
+        if (Test-Path test.js) {
+            Copy-Item test.js dist/brimstone-csharp-windows-x64/Examples/
+        }
+
+        # Create a run script
+        @'
+        @echo off
+        cd Examples
+        dotnet Brimstone.Net.Examples.dll
+        pause
+        '@ | Out-File -FilePath dist/brimstone-csharp-windows-x64/run-examples.bat -Encoding ASCII
+
+        # Create a getting started file
+        @'
+        # Brimstone C# Bindings - Windows x64
+
+        ## Quick Start
+
+        ### Run the examples:
+        ```cmd
+        run-examples.bat
+        ```
+
+        Or in PowerShell:
+        ```powershell
+        cd Examples
+        dotnet Brimstone.Net.Examples.dll
+        ```
+
+        ### Use in your project:
+
+        1. Copy `brimstone_ffi.dll` and `Brimstone.Net.dll` to your project
+        2. Reference Brimstone.Net.dll in your project
+        3. Ensure brimstone_ffi.dll is in the same directory or in your PATH
+
+        ### Example code:
+        ```csharp
+        using Brimstone.Net;
+
+        using var engine = new BrimstoneEngine();
+        engine.Eval("console.log('Hello from Brimstone!');");
+        ```
+
+        See README.md and CSHARP_BINDINGS.md for detailed documentation.
+        '@ | Out-File -FilePath dist/brimstone-csharp-windows-x64/GETTING_STARTED.md -Encoding UTF8
+
+        # Create zip archive
+        Compress-Archive -Path dist/brimstone-csharp-windows-x64/* -DestinationPath dist/brimstone-csharp-windows-x64.zip
+        Get-ChildItem dist
+
+    - name: Upload Windows artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: brimstone-csharp-windows-x64
+        path: dist/brimstone-csharp-windows-x64.zip
+        retention-days: 90
+
+  create-release-info:
+    name: Create Release Info
+    runs-on: ubuntu-latest
+    needs: [build-linux, build-windows]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Create release info
+      run: |
+        cat > RELEASE_INFO.md << 'EOF'
+        # Brimstone C# Bindings - Release Artifacts
+
+        ## Available Artifacts
+
+        ### Linux x64
+        - **File**: `brimstone-csharp-linux-x64.tar.gz`
+        - **Platform**: Linux x64
+        - **Contents**:
+          - `libbrimstone_ffi.so` - Native Brimstone library
+          - `Brimstone.Net.dll` - C# bindings library
+          - `Examples/` - Example applications
+          - Documentation and getting started guide
+
+        ### Windows x64
+        - **File**: `brimstone-csharp-windows-x64.zip`
+        - **Platform**: Windows x64
+        - **Contents**:
+          - `brimstone_ffi.dll` - Native Brimstone library
+          - `Brimstone.Net.dll` - C# bindings library
+          - `Examples/` - Example applications
+          - Documentation and getting started guide
+
+        ## Quick Start
+
+        ### Linux
+        ```bash
+        # Extract archive
+        tar -xzf brimstone-csharp-linux-x64.tar.gz
+        cd brimstone-csharp-linux-x64
+
+        # Run examples
+        ./run-examples.sh
+        ```
+
+        ### Windows
+        ```cmd
+        # Extract archive
+        # Then double-click run-examples.bat
+        # Or:
+        cd brimstone-csharp-windows-x64
+        run-examples.bat
+        ```
+
+        ## Using in Your Project
+
+        ### Prerequisites
+        - .NET 8.0 SDK or later
+
+        ### Steps
+
+        1. **Extract the artifact** for your platform
+        2. **Copy the native library** and **Brimstone.Net.dll** to your project
+        3. **Reference Brimstone.Net.dll** in your project
+        4. **Start coding!**
+
+        Example:
+        ```csharp
+        using Brimstone.Net;
+
+        using var engine = new BrimstoneEngine();
+
+        // Execute JavaScript
+        engine.Eval("console.log('Hello from Brimstone!');");
+
+        // Define and use JavaScript libraries
+        engine.Eval(@"
+            const MathUtils = {
+                square: (x) => x * x,
+                factorial: (n) => n <= 1 ? 1 : n * MathUtils.factorial(n - 1)
+            };
+        ");
+
+        engine.Eval("console.log('Square of 7:', MathUtils.square(7));");
+
+        // Load external JavaScript files
+        engine.EvalFile("myLibrary.js");
+        ```
+
+        ## Examples Included
+
+        Each artifact includes comprehensive examples:
+
+        1. ✅ Basic JavaScript execution
+        2. ✅ Arithmetic and variables
+        3. ✅ Array operations (map, filter, reduce)
+        4. ✅ Object creation and methods
+        5. ✅ Functions and closures
+        6. ✅ JavaScript library integration
+        7. ✅ JSON processing
+        8. ✅ Error handling
+        9. ✅ Loading external JavaScript files
+
+        ## Documentation
+
+        Each artifact includes:
+        - **GETTING_STARTED.md** - Quick start guide
+        - **README.md** - Library usage documentation
+        - **CSHARP_BINDINGS.md** - Comprehensive API reference
+
+        ## Features
+
+        ✅ Full JavaScript ES2024+ support
+        ✅ Cross-platform (Linux, macOS, Windows)
+        ✅ Safe memory management with IDisposable
+        ✅ Comprehensive error handling
+        ✅ Load external JavaScript files
+        ✅ Production-ready
+
+        ## Support
+
+        For issues or questions:
+        - Check the included documentation
+        - Visit the main Brimstone repository
+        - File an issue on GitHub
+
+        ## Build Information
+
+        - **Commit**: ${{ github.sha }}
+        - **Branch**: ${{ github.ref_name }}
+        - **Build Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        EOF
+
+        cat RELEASE_INFO.md
+
+    - name: Upload release info
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-info
+        path: RELEASE_INFO.md
+        retention-days: 90

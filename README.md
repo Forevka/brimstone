@@ -35,7 +35,31 @@ Hello world!
 
 Brimstone includes production-ready C# bindings that allow you to run JavaScript from .NET applications. See [CSHARP_BINDINGS.md](./CSHARP_BINDINGS.md) for detailed documentation.
 
-Quick start:
+### Download Pre-built Bindings (Recommended)
+
+Pre-built bindings are automatically built by CI for every commit to master:
+
+1. Go to the [Actions](../../actions/workflows/build-csharp-bindings.yml) tab
+2. Click on the latest successful workflow run
+3. Download the artifact for your platform:
+   - **Linux x64**: `brimstone-csharp-linux-x64.tar.gz`
+   - **Windows x64**: `brimstone-csharp-windows-x64.zip`
+4. Extract and run the examples!
+
+**Linux:**
+```bash
+tar -xzf brimstone-csharp-linux-x64.tar.gz
+cd brimstone-csharp-linux-x64
+./run-examples.sh
+```
+
+**Windows:**
+```cmd
+# Extract the zip file, then:
+run-examples.bat
+```
+
+### Build from Source
 
 ```bash
 # Build the FFI library and C# bindings

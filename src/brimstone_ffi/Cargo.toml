@@ -11,6 +11,9 @@ crate-type = ["cdylib", "staticlib"]
 brimstone_core = { path = "../js", default-features = false }
 brimstone_serialized_heap = { path = "../brimstone_serialized_heap", default-features = false }
 
+# Internal crates needed for ICU support
+brimstone_icu_collections.workspace = true
+
 # Explicitly include ICU dependencies for Windows compatibility
 icu_casemap.workspace = true
 icu_collator.workspace = true

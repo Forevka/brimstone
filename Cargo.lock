@@ -89,6 +89,7 @@ name = "brimstone_ffi"
 version = "0.1.0"
 dependencies = [
  "brimstone_core",
+ "brimstone_icu_collections",
  "brimstone_serialized_heap",
  "icu_casemap",
  "icu_collator",

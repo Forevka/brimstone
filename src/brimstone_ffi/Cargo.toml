@@ -8,7 +8,7 @@ edition.workspace = true
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-brimstone_core.workspace = true
+brimstone_core = { path = "../js", default-features = false }
 brimstone_serialized_heap.workspace = true
 
 [lints]

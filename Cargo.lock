@@ -99,6 +99,8 @@ dependencies = [
  "icu_provider",
  "icu_provider_adapters",
  "icu_provider_baked",
+ "zerotrie",
+ "zerovec",
 ]
 
 [[package]]

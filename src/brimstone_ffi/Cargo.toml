@@ -21,6 +21,8 @@ icu_properties = { workspace = true, features = ["alloc"] }
 icu_provider = { workspace = true, features = ["sync"] }
 icu_provider_baked.workspace = true
 icu_provider_adapters.workspace = true
+zerotrie.workspace = true
+zerovec.workspace = true
 
 [lints]
 workspace = true

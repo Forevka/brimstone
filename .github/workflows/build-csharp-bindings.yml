@@ -43,15 +43,10 @@ jobs:
         cd csharp
         dotnet build -c Release
 
-    - name: Copy native library for examples
-      run: |
-        mkdir -p csharp/Brimstone.Net.Examples/bin/Release/net8.0
-        cp target/release/libbrimstone_ffi.so csharp/Brimstone.Net.Examples/bin/Release/net8.0/
-
     - name: Run C# examples
       run: |
         cd csharp
-        dotnet run --project Brimstone.Net.Examples -c Release
+        dotnet run --project Brimstone.Net.Examples -c Release --no-build
 
     - name: Prepare distribution package
       run: |
@@ -156,16 +151,10 @@ jobs:
         cd csharp
         dotnet build -c Release
 
-    - name: Copy native library for examples
-      shell: pwsh
-      run: |
-        New-Item -ItemType Directory -Force -Path csharp/Brimstone.Net.Examples/bin/Release/net8.0
-        Copy-Item target/release/brimstone_ffi.dll csharp/Brimstone.Net.Examples/bin/Release/net8.0/
-
     - name: Run C# examples
       run: |
         cd csharp
-        dotnet run --project Brimstone.Net.Examples -c Release
+        dotnet run --project Brimstone.Net.Examples -c Release --no-build
 
     - name: Prepare distribution package
       shell: pwsh

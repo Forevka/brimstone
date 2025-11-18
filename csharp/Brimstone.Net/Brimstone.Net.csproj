@@ -11,9 +11,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../target/release/libbrimstone_ffi.so" CopyToOutputDirectory="PreserveNewest" Link="libbrimstone_ffi.so" Condition="'$(OS)' == 'Unix'" />
-    <None Include="../../target/release/libbrimstone_ffi.dylib" CopyToOutputDirectory="PreserveNewest" Link="libbrimstone_ffi.dylib" Condition="'$(OS)' == 'OSX'" />
-    <None Include="../../target/release/brimstone_ffi.dll" CopyToOutputDirectory="PreserveNewest" Link="brimstone_ffi.dll" Condition="'$(OS)' == 'Windows_NT'" />
+    <None Include="../../target/release/libbrimstone_ffi.so" CopyToOutputDirectory="PreserveNewest" Link="libbrimstone_ffi.so" Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
+    <None Include="../../target/release/libbrimstone_ffi.dylib" CopyToOutputDirectory="PreserveNewest" Link="libbrimstone_ffi.dylib" Condition="$([MSBuild]::IsOSPlatform('OSX'))" />
+    <None Include="../../target/release/brimstone_ffi.dll" CopyToOutputDirectory="PreserveNewest" Link="brimstone_ffi.dll" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
   </ItemGroup>
 
 </Project>

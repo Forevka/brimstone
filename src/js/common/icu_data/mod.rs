@@ -3,6 +3,16 @@
 use icu_collections::codepointinvliststringlist::CodePointInversionListAndStringList;
 use icu_provider_baked;
 
+// The generated ICU data files reference these crates, so we need them in scope
+extern crate icu_casemap;
+extern crate icu_collator;
+extern crate icu_collections;
+extern crate icu_normalizer;
+extern crate icu_properties;
+extern crate icu_provider;
+extern crate zerovec;
+extern crate zerotrie;
+
 pub struct BakedDataProvider;
 include!("../../../../icu/data/mod.rs");
 impl_data_provider!(BakedDataProvider);

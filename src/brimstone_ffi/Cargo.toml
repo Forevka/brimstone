@@ -1,0 +1,18 @@
+[package]
+name = "brimstone_ffi"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+brimstone_core = { path = "../js", default-features = false, features = ["no_jemalloc"] }
+brimstone_serialized_heap = { path = "../brimstone_serialized_heap", default-features = false, features = ["no_jemalloc"] }
+
+[features]
+default = []
+
+[lints]
+workspace = true

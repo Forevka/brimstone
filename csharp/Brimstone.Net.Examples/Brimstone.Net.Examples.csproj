@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Brimstone.Net/Brimstone.Net.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../target/release/libbrimstone_ffi.so" CopyToOutputDirectory="PreserveNewest" Link="libbrimstone_ffi.so" Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
+    <None Include="../../target/release/libbrimstone_ffi.dylib" CopyToOutputDirectory="PreserveNewest" Link="libbrimstone_ffi.dylib" Condition="$([MSBuild]::IsOSPlatform('OSX'))" />
+    <None Include="../../target/release/brimstone_ffi.dll" CopyToOutputDirectory="PreserveNewest" Link="brimstone_ffi.dll" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
+  </ItemGroup>
+
+</Project>

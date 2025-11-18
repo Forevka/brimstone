@@ -8,7 +8,7 @@ edition.workspace = true
 brimstone_core = { path = "../js", default-features = false }
 
 [build-dependencies]
-brimstone_core = { path = "../js", default-features = false }
+brimstone_core = { path = "../js" }
 
 [features]
 default = ["jemalloc"]

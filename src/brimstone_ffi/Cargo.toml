@@ -9,7 +9,7 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 brimstone_core = { path = "../js", default-features = false }
-brimstone_serialized_heap.workspace = true
+brimstone_serialized_heap = { path = "../brimstone_serialized_heap", default-features = false }
 
 [lints]
 workspace = true

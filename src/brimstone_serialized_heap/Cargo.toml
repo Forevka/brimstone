@@ -5,11 +5,10 @@ authors.workspace = true
 edition.workspace = true
 
 [dependencies]
-brimstone_core = { path = "../js", default-features = false }
+brimstone_core = { workspace = true, default-features = false }
 
 [build-dependencies]
-brimstone_core = { path = "../js" }
+brimstone_core = { workspace = true, default-features = false }
 
 [features]
-default = ["jemalloc"]
-jemalloc = ["brimstone_core/jemalloc"]
+default = []

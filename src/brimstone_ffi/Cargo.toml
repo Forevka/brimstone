@@ -8,24 +8,11 @@ edition.workspace = true
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-brimstone_core = { path = "../js", default-features = false }
-brimstone_serialized_heap = { path = "../brimstone_serialized_heap", default-features = false }
+brimstone_core = { workspace = true, default-features = false }
+brimstone_serialized_heap = { workspace = true, default-features = false }
 
-# Internal crates needed for ICU support
-brimstone_icu_collections.workspace = true
-
-# Explicitly include ICU dependencies for Windows compatibility
-icu_casemap.workspace = true
-icu_collator.workspace = true
-icu_collections.workspace = true
-icu_locale.workspace = true
-icu_normalizer.workspace = true
-icu_properties = { workspace = true, features = ["alloc"] }
-icu_provider = { workspace = true, features = ["sync"] }
-icu_provider_baked.workspace = true
-icu_provider_adapters.workspace = true
-zerotrie.workspace = true
-zerovec.workspace = true
+[features]
+default = []
 
 [lints]
 workspace = true

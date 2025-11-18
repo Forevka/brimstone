@@ -12,3 +12,4 @@ brimstone_core = { path = "../js", default-features = false }
 
 [features]
 default = []
+no_jemalloc = ["brimstone_core/no_jemalloc"]

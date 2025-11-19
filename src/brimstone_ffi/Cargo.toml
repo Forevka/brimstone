@@ -8,8 +8,8 @@ edition.workspace = true
 crate-type = ["cdylib"]
 
 [dependencies]
-brimstone_core = { path = "../js", default-features = false, features = ["no_jemalloc"] }
-brimstone_serialized_heap = { path = "../brimstone_serialized_heap", default-features = false, features = ["no_jemalloc"] }
+brimstone_core = { workspace = true, default-features = false, features = ["no_jemalloc"] }
+brimstone_serialized_heap = { workspace = true, default-features = false, features = ["no_jemalloc"] }
 
 [features]
 default = []

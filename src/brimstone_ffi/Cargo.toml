@@ -1,0 +1,18 @@
+[package]
+name = "brimstone_ffi"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+brimstone_core = { workspace = true, default-features = false, features = ["no_jemalloc"] }
+brimstone_serialized_heap = { workspace = true, default-features = false, features = ["no_jemalloc"] }
+
+[features]
+default = []
+
+[lints]
+workspace = true

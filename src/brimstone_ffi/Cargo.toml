@@ -4,6 +4,7 @@ version.workspace = true
 authors.workspace = true
 edition.workspace = true
 
+# Build as a C-compatible dynamic library
 [lib]
 crate-type = ["cdylib"]
 

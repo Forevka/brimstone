@@ -141,6 +141,9 @@ jobs:
       with:
         shared-key: "brimstone-ffi-windows"
 
+    - name: Clean build artifacts
+      run: cargo clean
+
     - name: Build Brimstone FFI library
       run: |
         cargo build -p brimstone_ffi --release --no-default-features

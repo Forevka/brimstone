@@ -5,10 +5,10 @@ authors.workspace = true
 edition.workspace = true
 
 [dependencies]
-brimstone_core = { workspace = true, default-features = false }
+brimstone_core = { workspace = true, default-features = false, features = ["no_jemalloc"] }
 
 [build-dependencies]
-brimstone_core = { workspace = true, default-features = false }
+brimstone_core = { workspace = true, default-features = false, features = ["no_jemalloc"] }
 
 [features]
 default = []
